@@ -1,0 +1,18 @@
+﻿@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> localizer
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@localizer["Title"]</title>
+</head>
+<body>
+    <h1>@localizer["Title"]</h1>
+    <h>@localizer["Welcome"]</h>
+        </body>
+</html>

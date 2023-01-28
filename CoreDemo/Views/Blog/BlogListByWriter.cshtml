@@ -1,0 +1,43 @@
+﻿@model List<Blog>
+@{
+    ViewData["Title"] = "BlogListByWriter";
+    Layout = "~/Views/Shared/WriterLayout.cshtml";
+}
+
+
+<table class="table table-bordered">
+      <tr>
+          <th> # </th>
+        <th>Blog Başlığı</th>
+        <th>Oluşturma Tarihi</th>
+        <th>Kategori</th>
+        <th>Durum</th>
+        <th>Sil</th>
+        <th>Düzenle</th>
+
+
+      </tr>
+    @foreach (var item in Model)
+   {
+       <tr>
+            <th>@item.BlogID</th>
+            <td>@item.BlogTitle</td>
+            <td>@(((DateTime)item.BlogCreateDate).ToString("dd-MMM-yyyy"))</td>
+            <td>@item.Category.CategoryName</td>
+            @if (item.BlogStatus==true)
+           {
+                <td>Aktif</td>
+            }
+            else
+            {
+            <td>Pasif</td>
+
+            }
+            <td><a href="~/Blog/BlogDelete/@item.BlogID" class="btn btn-danger">SİL</a></td>
+            <td><a href="~/Blog/BlogEdit/@item.BlogID" class="btn btn-warning">DÜZENLE</a></td>
+
+
+       </tr>
+   }
+</table>
+<a href="~/Blog/BlogAdd" class="btn btn-primary"> Yeni Blog Oluştur</a>
