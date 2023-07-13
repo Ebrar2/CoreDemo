@@ -9,5 +9,6 @@ namespace DataAcessLayer.Abstract
 {
     public interface IWriterDal:IGenericDal<Writer>
     {
+        public Writer GetByMail(string mail);
     }
 }

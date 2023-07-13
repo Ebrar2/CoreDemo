@@ -3,29 +3,42 @@ using BusinessLayer.ValidationRules;
 using CoreDemo.Models;
 using DataAcessLayer.Concrete;
 using DataAcessLayer.EntityFramework;
+using DocumentFormat.OpenXml.EMMA;
 using EntityLayer.Concrete;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Threading.Tasks;
 
 namespace CoreDemo.Controllers
 {
-	public class WriterController : Controller
-	{
+    public class WriterController : Controller
+    {
         WriterManager writerManager = new WriterManager(new EfWriterRepository());
+        UserManager userManager = new UserManager(new EfUserRepository());
+        private readonly UserManager<AppUser> _userManager;
+
+
+        public  WriterController(UserManager<AppUser> userManager)
+            {
+             _userManager = userManager;
+            }
         [Authorize]
 		public IActionResult Index()
 		{
-            var userMail = User.Identity.Name;
-            ViewBag.usM = userMail;
-            Context c = new Context();
-            var writerName=c.Writer.Where(x=>x.WriterMail==userMail).Select(x=>x.WriterName).FirstOrDefault();
-            ViewBag.writerName=writerName;
+            var userName = User.Identity.Name;
+            ViewBag.usM = userName;
+            /* 
+             Context c = new Context();
+             var writerName=c.Writer.Where(x=>x.WriterMail==userMail).Select(x=>x.WriterName).FirstOrDefault();*/
+
+            ViewBag.writerName = userManager.GetFilter(x => x.UserName == userName);
             return View();
 		}
         public IActionResult WriterProfile()
@@ -53,37 +66,82 @@ namespace CoreDemo.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult WriterEditsProfile()
+        public async Task<IActionResult> WriterEditsProfile()
         {
+            /*  1.yol
+             * Context c = new Context();
+             var username = User.Identity.Name;
+             var mail=c.Users.Where(x=>x.UserName==username).Select(z=>z.Email).FirstOrDefault();
+             var writer = writerManager.GetByMail(mail);*/
+         /*  
+          *  2.yol
+          *  var username = User.Identity.Name;
+            var id = c.Users.Where(x => x.UserName == username).Select(z => z.Id).FirstOrDefault();
+            
+            var writer = userManager.GetById(id);*/
 
-            var username = User.Identity.Name;
-            var writer = writerManager.GetByMail(username);
-            return View(writer);
+           var writer = await _userManager.FindByNameAsync(User.Identity.Name);
+            UserUpdateViewModel userUpdateView = new UserUpdateViewModel();
+            userUpdateView.UserName = writer.UserName;
+            userUpdateView.ImageUrl = writer.ImageUrl;
+            userUpdateView.NameSurname = writer.NameSurname;
+            userUpdateView.Mail = writer.Email;
+            return View(userUpdateView);
 
         }
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult WriterEditsProfile(Writer writer)
+        public async Task<IActionResult> WriterEditsProfile(UserUpdateViewModel userUpdateViewModel)
         {
+               
+               var user=await _userManager.FindByNameAsync(User.Identity.Name);
+            if (userUpdateViewModel.changePassword)
+            {
+                user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, userUpdateViewModel.Password);
 
-             WriterValidator validator = new WriterValidator();
-             ValidationResult validationResult = validator.Validate(writer);
-            if(validationResult.IsValid)
-            {
-                 
-                writerManager.Update(writer);
-                return RedirectToAction("Index","Dashboard");
             }
-           else
+                user.NameSurname = userUpdateViewModel.NameSurname;
+                user.Email = userUpdateViewModel.Mail;
+                user.ImageUrl = userUpdateViewModel.ImageUrl;
+            
+
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
             {
-                foreach (var item in validationResult.Errors)
-                {
-                    ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
-                }
+                return RedirectToAction("Index", "Dashboard");
+
             }
-            return View();
+            else
+            {
+                return View(userUpdateViewModel);
+            }
+
+
+
 
         }
+        /*      public IActionResult WriterEditsProfile(Writer writer)
+              {
+
+                   WriterValidator validator = new WriterValidator();
+                   ValidationResult validationResult = validator.Validate(writer);
+                  if(validationResult.IsValid)
+                  {
+
+                      writerManager.Update(writer);
+                      return RedirectToAction("Index","Dashboard");
+                  }
+                 else
+                  {
+                      foreach (var item in validationResult.Errors)
+                      {
+                          ModelState.AddModelError(item.PropertyName, item.ErrorMessage);
+                      }
+                  }
+                  return View();
+
+              }*/
         [AllowAnonymous]
         [HttpGet]
         public IActionResult WriterAdd()
@@ -130,10 +188,6 @@ namespace CoreDemo.Controllers
             return View();
           
         }
-        public IActionResult Deneme()
-        {
-            return View();
-        }
-    
+       
     }
 }

@@ -20,8 +20,10 @@ namespace EntityLayer.Concrete
 
         public bool BlogStatus { get; set; }
 
-        public int WriterID { get; set; }
-        public Writer writer{ get; set; }
+      //  public int WriterID { get; set; }
+       // public Writer writer{ get; set; }
+       public int AppUserID { get; set; }
+        public AppUser Writer { get; set; } 
 
         public int CategoryID { get; set; }
         public Category Category { get; set; }

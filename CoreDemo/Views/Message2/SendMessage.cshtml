@@ -1,0 +1,25 @@
+﻿@model MessageSendViewModel
+@{
+    ViewData["Title"] = "SendMessage";
+    Layout = "~/Views/Shared/WriterLayout.cshtml";
+}
+
+<h1>Yeni Blog Girişi</h1>
+<br />
+
+@using (Html.BeginForm("SendMessage", "Message2", FormMethod.Post))
+{
+    @Html.Label("Alıcı Mail Adresi")
+    @Html.TextBoxFor(x=>x.ReceiverMail,new {@class="form-control"})
+    <br />
+
+    @Html.Label("Konu")
+    @Html.TextBoxFor(x=>x.Subject,new {@class="form-control"})
+     <br />
+    @Html.Label("Mesaj İçeriği")
+    @Html.TextAreaFor(x=>x.MessageDetails,15,3,new {@class="form-control"})
+    <br />
+    <button class="btn btn-info">
+        Gönder
+    </button>
+}

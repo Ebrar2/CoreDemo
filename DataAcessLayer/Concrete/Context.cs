@@ -1,4 +1,6 @@
 ﻿using EntityLayer.Concrete;
+using Microsoft.AspNetCore.Builder.Internal;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,12 +10,30 @@ using System.Threading.Tasks;
 
 namespace DataAcessLayer.Concrete
 {
-    public class Context:DbContext
+    public class Context:IdentityDbContext<AppUser,AppRole,int>
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         
             optionsBuilder.UseSqlServer("server=.;database=CoreBlogDb;trusted_connection=true;");
+        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+              modelBuilder.Entity<Message2>()
+                .HasOne(x=>x.SenderUser)
+                .WithMany(x=>x.WriterSender)
+                .HasForeignKey(x=>x.SenderID)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+ 
+
+
+            modelBuilder.Entity<Message2>()
+                .HasOne(x=>x.ReceiverUser)
+                .WithMany(x=>x.WriterReceiver)
+                .HasForeignKey(x=>x.ReceiverID)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            base.OnModelCreating(modelBuilder);
         }
         public DbSet<About> Abouts { get; set; }
         public DbSet<Category> Categories { get; set; }
@@ -25,6 +45,10 @@ namespace DataAcessLayer.Concrete
         public DbSet<BlogRayting> BlogRaytings { get; set; }
 
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<Message2> Message2s { get; set; }
+        public DbSet<Admin> Admins { get; set; }    
+
 
     }
 

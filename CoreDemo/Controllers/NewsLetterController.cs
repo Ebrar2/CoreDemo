@@ -16,7 +16,7 @@ namespace CoreDemo.Controllers
         }
 
         [HttpPost]
-        public ActionResult NewsLetterAdd(NewsLetter newsLetter)
+        public IActionResult NewsLetterAdd(NewsLetter newsLetter)
         {
             newsLetter.MailStatus = true;
             _newsletterManager.NewsLetterAdd(newsLetter);

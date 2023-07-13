@@ -72,10 +72,10 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 						<p>@Model.BlogContent</p>
 						<a href="single.html" class="btn btn-primary read-m">Blog Listesi</a>
 					</div>
-					@await Component.InvokeAsync("CommentListByBlog",new {id=ViewBag.id})
+					@await Component.InvokeAsync("CommentListByBlog",new {id=Model.BlogID})
 
-					@await Html.PartialAsync("~/Views/CommentController/CommentListByBlog.cshtml")
-				
+@*					@await Html.PartialAsync("~/Views/CommentController/CommentListByBlog.cshtml")
+*@				
 @await Html.PartialAsync("~/Views/Comment/PartialAddComment.cshtml")
 
 				</div>

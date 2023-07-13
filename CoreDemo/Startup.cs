@@ -1,9 +1,12 @@
 using CoreDemo.LocalizationLanguage;
 using CoreDemo.Resources;
+using DataAcessLayer.Concrete;
+using EntityLayer.Concrete;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Localization.Routing;
@@ -36,6 +39,12 @@ namespace CoreDemo
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddDbContext<Context>();
+            services.AddIdentity<AppUser, AppRole>(x =>{
+                x.Password.RequireUppercase = false;
+                x.Password.RequireNonAlphanumeric = false;
+             
+            }).AddEntityFrameworkStores<Context>();
             services.AddControllersWithViews();
             services.AddMvc(configure =>
             {
@@ -82,6 +91,15 @@ namespace CoreDemo
 
     });
             services.AddSession();
+            services.ConfigureApplicationCookie(opts =>
+            {
+          
+                opts.Cookie.HttpOnly = true;
+                opts.ExpireTimeSpan = TimeSpan.FromMinutes(100);
+                opts.AccessDeniedPath = new PathString("/Login/AccessDenied/");
+                opts.LoginPath = "/Login/Index/";
+                opts.SlidingExpiration = true;
+            });
             services.AddAuthentication(
             
                 CookieAuthenticationDefaults.AuthenticationScheme)
@@ -124,6 +142,12 @@ namespace CoreDemo
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllerRoute(
+                        name: "areas",
+                        pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+                      );
+
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

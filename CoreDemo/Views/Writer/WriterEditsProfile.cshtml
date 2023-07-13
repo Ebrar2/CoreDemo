@@ -1,57 +1,54 @@
-﻿@model Writer
+﻿@model UserUpdateViewModel
 @{
     ViewData["Title"] = "WriterEditsProfile";
     Layout = "~/Views/Shared/WriterLayout.cshtml";
+
 }
 
 <h1 >WriterEditsProfile</h1>
-
 @using (Html.BeginForm("WriterEditsProfile", "Writer", FormMethod.Post))
 {
+
     <div class="col-12 grid-margin stretch-card">
         <div class="card col-12">
             <div class="card-body">
                 <h4 class="card-title">Yazar Profil Bilgileri Güncelleme</h4>
                 <form class="forms-sample">
                     <div class="form-group">
-                        <label for="exampleInputName1">Ad</label>
-                        <input type="text" class="form-control" id="exampleInputName1" asp-for="WriterName" placeholder="Name">
+                        <label for="exampleInputEmail3">Ad Soyad</label>
+                       <input type="text" class="form-control" id="exampleInputName1" asp-for="@Model.NameSurname" placeholder="Name">
+                        @Html.ValidationMessageFor(x=>x.NameSurname)
+
                     </div>
-                    @Html.HiddenFor(x=>x.WriterID)
+                    <div class="form-group">
+                        <label for="exampleInputName1">Kullanıcı Adı</label>
+                        <input type="text" class="form-control" id="exampleInputName1" asp-for="@Model.UserName" placeholder="Name">
+                    </div>
+                    
                     <div class="form-group">
                         <label for="exampleInputEmail3">Mail Adresi</label>
-                        @Html.TextBoxFor(x=>x.WriterMail,new {@class="form-control"})
-                    @Html.ValidationMessageFor(x=>x.WriterMail)
+                        <input type="text" class="form-control" id="exampleInputName1" asp-for="@Model.Mail" placeholder="Name">
+                    @Html.ValidationMessageFor(x=>x.Mail)
 
                     </div>
-                    <div class="form-group">
-                        <label for="exampleInputPassword4">Şifre</label>
-                        @Html.PasswordFor(x=>x.WriterPassword,new {@class="form-control",@placeholder="Password" })
-                        @Html.ValidationMessageFor(x=>x.WriterPassword)
+                    @Html.CheckBoxFor(x=>x.changePassword,new { @class = "form-group" })
+                    <label for="changePassword">Şifrenizi Değiştirmek İstiyormusunuz?</label>
 
-                    </div>
-                   
                     <div class="form-group">
-                        <label>Yazar Görsel</label>
-                        <input type="file" name="img[]" class="file-upload-default">
-                        <div class="input-group col-xs-12">
-                            <input type="text" class="form-control file-upload-info" disabled placeholder="Upload Image">
-                            <span class="input-group-append">
-                                <button class="file-upload-browse btn btn-gradient-primary" type="button">Resim Seç</button>
-                            </span>
-                        </div>
+                        <label for="exampleInputName1">Yeni Şifre</label>
+                        <input type="text" class="form-control" id="password" asp-for="@Model.Password" placeholder="Şifre Giriniz">
                     </div>
-                    <div class="form-group">
-                        <label for="exampleTextarea1">Yazar Hakkında</label>
-                        @Html.TextAreaFor(x=>x.WriterAbout,10,3,new {@class="form-control"})
+                   <div class="form-group">
+                       <label >Resim Yolu</label>
+                       <input type="text" asp-for="@Model.ImageUrl" class="form-control">
+                   </div>
 
-                    </div>
                     <button type="submit" class="btn btn-gradient-primary mr-2">Güncelle</button>
-                    <button class="btn btn-light">İptal</button>
+                    <button class="btn btn-light" id="btn1" href="/Dasboard/Index/">İptal</button>
                 </form>
             </div>
         </div>
     </div>
 
-
 }
+

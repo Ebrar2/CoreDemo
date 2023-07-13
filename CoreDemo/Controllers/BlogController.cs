@@ -1,9 +1,11 @@
 ﻿using BusinessLayer.Concrete;
 using BusinessLayer.ValidationRules;
+using DataAcessLayer.Concrete;
 using DataAcessLayer.EntityFramework;
 using EntityLayer.Concrete;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Localization;
@@ -20,21 +22,23 @@ namespace CoreDemo.Controllers
        
         BlogManager blogManager = new BlogManager(new EfBlogRepository());
         CategoryManager categoryManager = new CategoryManager(new EfCategoryRepository());
-        WriterManager writerManager = new WriterManager(new EfWriterRepository());
-      
+     //   WriterManager writerManager = new WriterManager(new EfWriterRepository());
+        UserManager userManager = new UserManager(new EfUserRepository());  
 
         private IStringLocalizer<SharedResource> _localizer;
         public BlogController(IStringLocalizer<SharedResource> localizer)
         {
             _localizer = localizer;
         }
+        [AllowAnonymous]
         public IActionResult Index()
         {
             
             var values = blogManager.GetBlogListWithCategory();
             return View(values);
         }
-       
+        [AllowAnonymous]
+
         public IActionResult BlogReadAll(int id)
 
         {
@@ -45,10 +49,14 @@ namespace CoreDemo.Controllers
         public IActionResult BlogListByWriter()
         {
 
-            var mail = User.Identity.Name;
-            var writer = writerManager.GetByMail(mail);
-
-            var values=blogManager.GetBlogListByWriter(writer.WriterID);
+            /* var mail = User.Identity.Name;
+             var writer = writerManager.GetByMail(mail);
+               */
+            var username = User.Identity.Name;
+            var writer = userManager.GetFilter(X => X.UserName == username);
+                
+        
+            var values=blogManager.GetBlogListByWriter(writer.Id);
             return View(values);
         }
         [HttpGet]
@@ -69,16 +77,17 @@ namespace CoreDemo.Controllers
         [HttpPost]
         public IActionResult BlogAdd(Blog blog)
         {
-            var mail = User.Identity.Name;
-            var writer = writerManager.GetByMail(mail);
-
+            var username = User.Identity.Name;
+            // var writer = writerManager.GetByMail(mail);
+            var user = userManager.GetFilter(x => x.UserName == username);
             BlogValidator validationRules = new BlogValidator();
                 ValidationResult result = validationRules.Validate(blog);
                 if (result.IsValid)
                 {
                         blog.BlogStatus = true;
                         blog.BlogCreateDate = DateTime.Parse(DateTime.Now.ToShortDateString());
-                        blog.WriterID = writer.WriterID;
+                       // blog.WriterID = writer.WriterID;
+                        blog.AppUserID=user.Id;
                         blogManager.Add(blog);
 
                         return RedirectToAction("BlogListByWriter", "Blog");
@@ -121,9 +130,10 @@ namespace CoreDemo.Controllers
         [HttpPost]
         public IActionResult BlogEdit(Blog b)
         {
-            var mail = User.Identity.Name;
-            var writer = writerManager.GetByMail(mail);
-            b.WriterID = writer.WriterID;
+            var username = User.Identity.Name;
+            //  var writer = writerManager.GetByMail(mail);
+            var user = userManager.GetFilter(x => x.UserName == username);
+            b.AppUserID = user.Id;
             b.BlogStatus = true;
             blogManager.Update(b);
             return RedirectToAction("BlogListByWriter", "Blog");
