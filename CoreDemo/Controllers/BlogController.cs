@@ -15,12 +15,13 @@ using System.Threading;
 
 namespace CoreDemo.Controllers
 {
-    [AllowAnonymous]
     public class BlogController : Controller
     {
        
         BlogManager blogManager = new BlogManager(new EfBlogRepository());
         CategoryManager categoryManager = new CategoryManager(new EfCategoryRepository());
+        WriterManager writerManager = new WriterManager(new EfWriterRepository());
+      
 
         private IStringLocalizer<SharedResource> _localizer;
         public BlogController(IStringLocalizer<SharedResource> localizer)
@@ -44,7 +45,10 @@ namespace CoreDemo.Controllers
         public IActionResult BlogListByWriter()
         {
 
-            var values=blogManager.GetBlogListByWriter(2);
+            var mail = User.Identity.Name;
+            var writer = writerManager.GetByMail(mail);
+
+            var values=blogManager.GetBlogListByWriter(writer.WriterID);
             return View(values);
         }
         [HttpGet]
@@ -65,14 +69,16 @@ namespace CoreDemo.Controllers
         [HttpPost]
         public IActionResult BlogAdd(Blog blog)
         {
-         
-                BlogValidator validationRules = new BlogValidator();
+            var mail = User.Identity.Name;
+            var writer = writerManager.GetByMail(mail);
+
+            BlogValidator validationRules = new BlogValidator();
                 ValidationResult result = validationRules.Validate(blog);
                 if (result.IsValid)
                 {
                         blog.BlogStatus = true;
                         blog.BlogCreateDate = DateTime.Parse(DateTime.Now.ToShortDateString());
-                        blog.WriterID = 2;
+                        blog.WriterID = writer.WriterID;
                         blogManager.Add(blog);
 
                         return RedirectToAction("BlogListByWriter", "Blog");
@@ -115,7 +121,9 @@ namespace CoreDemo.Controllers
         [HttpPost]
         public IActionResult BlogEdit(Blog b)
         {
-            b.WriterID = 2;
+            var mail = User.Identity.Name;
+            var writer = writerManager.GetByMail(mail);
+            b.WriterID = writer.WriterID;
             b.BlogStatus = true;
             blogManager.Update(b);
             return RedirectToAction("BlogListByWriter", "Blog");

@@ -9,7 +9,9 @@ namespace CoreDemo.ViewComponents.Writer
         WriterManager writerManager = new WriterManager(new EfWriterRepository());
         public IViewComponentResult Invoke()
         {
-            var x = writerManager.GetById(2);
+            var userName=User.Identity.Name;
+            var x = writerManager.GetByMail(userName);
+
 
             return View(x);
 

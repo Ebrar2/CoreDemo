@@ -5,9 +5,10 @@ using System.Linq;
 
 namespace CoreDemo.Controllers
 {
+    [Authorize]
+
     public class DashboardController : Controller
     {
-        [AllowAnonymous]
         public IActionResult Index()
         {
             Context context=new Context();
